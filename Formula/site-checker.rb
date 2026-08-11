@@ -37,12 +37,12 @@ class SiteChecker < Formula
 
   on_arm do
     url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-aarch64-apple-darwin.zip"
-    sha256 "dfc813b29084233d9ae90fe1356a6f0f1f01a845a0aedc7a9f94ed288fd34517"
+    sha256 "a452dc367b2a094036e20d613c8cb261dc934d2530dda2a02b189e584a506889"
   end
 
   on_intel do
     url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-x86_64-apple-darwin.zip"
-    sha256 "80709031ff8511c04d098e226f1a6a7e0e1ff918fbad0f30c2ff773eccf7eb96"
+    sha256 "286ac6c6246c6b4a20887a4394113d4f32f85e6803151912f90f366d4b4449eb"
   end
 
   # libexec rather than the keg root, and the choice is load-bearing. Cleaner
@@ -67,9 +67,19 @@ class SiteChecker < Formula
   def install
     staged = Pathname.pwd
     if staged.basename.to_s == "Site Checker.app"
-      # `children`, not Dir["*"] — it includes dotfiles, and silently dropping
-      # one out of a signed bundle would break the seal rather than the install.
-      (libexec/"Site Checker.app").install staged.children
+      # `Contents` by name, and *not* the staged directory's children. Homebrew
+      # sets buildpath to the staged directory — which, after the chdir above, is
+      # the bundle itself — and creates `.brew_home` inside it to use as HOME for
+      # the install (Formula#stage). Sweeping in every child therefore installs
+      # Homebrew's own scratch directory into the app, and `codesign --verify
+      # --strict` rejects it with "unsealed contents present in the bundle root".
+      # That is not a hypothetical: it is how the second throwaway release failed.
+      #
+      # Naming `Contents` is also simply the correct rule rather than a
+      # workaround. A macOS bundle's root *is* `Contents` by definition, and it is
+      # exactly what the signature seals — so anything else that appears beside it
+      # is by construction not ours to install.
+      (libexec/"Site Checker.app").install "Contents"
     else
       libexec.install "Site Checker.app"
     end
