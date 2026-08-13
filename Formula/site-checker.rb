@@ -21,16 +21,21 @@
 # lives under its cask/ directory. Homebrew resolves a tap-qualified name
 # against both Formula/ and Casks/, so the advertised install line is unchanged.
 #
-# What the switch costs is real and is recorded in docs/ROADMAP.md: a formula
-# cannot write to /Applications, because Homebrew's build and post-install
-# sandboxes deny every write outside the Cellar. The bundle therefore lives in
-# the keg, reached by the `site-checker` wrapper below or by the optional
-# symlink in `caveats`. Spotlight and Launchpad do not index through a symlink.
+# What the switch costs is real: a formula cannot write to /Applications, because
+# Homebrew's build and post-install sandboxes deny every write outside the
+# Cellar. The bundle therefore lives in the keg, reached by the `site-checker`
+# wrapper below or by the optional symlink in `caveats`. Spotlight and Launchpad
+# do not index through a symlink. All three losses — that one, no provenance, and
+# no data-removing uninstall — are recorded in full at
+# https://github.com/clintcparker/site-checker/issues/20
+# (This file is published to a public tap, so every reference in it must resolve
+# for a reader who has only the tap. It previously cited docs/ROADMAP.md, which
+# is gitignored and exists on no machine but the maintainer's.)
 
 class SiteChecker < Formula
   desc "Small macOS dashboard that checks whether your sites are up"
   homepage "https://github.com/clintcparker/site-checker"
-  version "1.0.0"
+  version "1.1.2"
   license "0BSD"
 
   depends_on :macos
@@ -44,10 +49,10 @@ class SiteChecker < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-aarch64-apple-darwin.zip"
-      sha256 "e7fb8f12623279b59fa9c19f1bbd1d8585ac61377342f4852552eaa1f2666b32"
+      sha256 "91025d60f2549d525565a72685c46313c9d92cb7d47e413dc23a73cec7eb0951"
     else
       url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-x86_64-apple-darwin.zip"
-      sha256 "f4cff5864a764479f42042e3dd5432621e6cacf3944d94f533df534be69eaf13"
+      sha256 "364b8f6b7ea8634bac9a6fd7963f7d39674165b6438fe131dd0cdf1dbe1dc424"
     end
   end
 
@@ -115,6 +120,12 @@ class SiteChecker < Formula
 
       Spotlight and Launchpad do not index apps through a symlink, so use the
       `site-checker` command or open it from Finder.
+
+      Site Checker opens at login by default, which registers
+        ~/Library/LaunchAgents/Site Checker.plist
+      Homebrew does not remove it. Along with the symlink above, it is hand-made
+      and hand-removed — `brew uninstall site-checker` leaves both behind:
+        rm ~/Library/LaunchAgents/"Site Checker.plist"
 
       This build is signed ad-hoc rather than notarized, which is why it is a
       formula: nothing quarantines it, so it opens without a security prompt.
