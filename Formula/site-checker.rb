@@ -35,7 +35,7 @@
 class SiteChecker < Formula
   desc "Small macOS dashboard that checks whether your sites are up"
   homepage "https://github.com/clintcparker/site-checker"
-  version "1.1.2"
+  version "1.1.3"
   license "0BSD"
 
   depends_on :macos
@@ -49,10 +49,10 @@ class SiteChecker < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-aarch64-apple-darwin.zip"
-      sha256 "91025d60f2549d525565a72685c46313c9d92cb7d47e413dc23a73cec7eb0951"
+      sha256 "98a0c8b214532fa841a63868d0c999805793f52e754f9be994f619658fa9f52c"
     else
       url "https://github.com/clintcparker/site-checker/releases/download/v#{version}/site-checker-x86_64-apple-darwin.zip"
-      sha256 "364b8f6b7ea8634bac9a6fd7963f7d39674165b6438fe131dd0cdf1dbe1dc424"
+      sha256 "32a4f0518570b4fe0e54dc0168151cce5b2cf55bc2cbea10a6ba2edf78b6290e"
     end
   end
 
